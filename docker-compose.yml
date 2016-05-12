@@ -1,0 +1,28 @@
+titandb:
+  build: .
+  environment:
+    DYNAMO_LOCAL: "1"
+    DYNAMO_ENDPOINT: "http://dynamodb:8000"
+    ELASTICSEARCH_HOST: "elasticsearch"
+    VIRTUAL_HOST: titan.docker
+  links:
+    - elasticsearch
+    - dynamodb
+  ports:
+    - "8182"
+
+elasticsearch:
+  image: elasticsearch:1.5
+  environment:
+    VIRTUAL_HOST: elasticsearch.docker
+    VIRTUAL_PORT: 9200
+  ports:
+    - "9200"
+    - "9300"
+
+dynamodb:
+  image: instructure/dynamodb
+  environment:
+    VIRTUAL_HOST: dynamodb.docker
+  ports:
+    - "8000"
