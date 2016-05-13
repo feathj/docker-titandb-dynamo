@@ -13,10 +13,6 @@ generate_server_config() {
     DYNAMO_CREDENTIALS="key,secret"
   fi
 
-  if [[ -z "$ELASTICSEARCH_CLUSTER_NAME" ]]; then
-    ELASTICSEARCH_CLUSTER_NAME="elasticsearch"
-  fi
-
 cat > /usr/src/app/gremlin-server.yml <<EOF
 # Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # Portions copyright Titan: Distributed Graph Database - Copyright 2012 and onwards Aurelius.
@@ -134,6 +130,8 @@ storage.dynamodb.client.executor.max-queue-length=1024
 # accessing the same graph, you should set the read-rate and write-rate properties to values commensurately lower than the
 # read and write capacity of the backend tables.
 
+# TODO: Add configurable read/write
+# decide where it makes sense to deviate here
 storage.dynamodb.stores.edgestore.capacity-read=100
 storage.dynamodb.stores.edgestore.capacity-write=100
 storage.dynamodb.stores.edgestore.read-rate=100
@@ -170,6 +168,18 @@ storage.dynamodb.stores.txlog.read-rate=10
 storage.dynamodb.stores.txlog.write-rate=10
 storage.dynamodb.stores.txlog.scan-limit=10000
 
+# avoid scan operations on dynamo
+query.force-index=true
+EOF
+
+  if [[ -n "$ELASTICSEARCH_HOST" ]]; then
+
+    if [[ -z "$ELASTICSEARCH_CLUSTER_NAME" ]]; then
+      ELASTICSEARCH_CLUSTER_NAME="elasticsearch"
+    fi
+
+cat >> /usr/src/app/dynamodb.properties <<EOF
+
 # elasticsearch config
 index.search.backend=elasticsearch
 index.search.local-mode=false
@@ -178,6 +188,8 @@ index.search.hostname=$ELASTICSEARCH_HOST
 index.search.elasticsearch.client-only=true
 index.search.elasticsearch.sniff=false
 EOF
+
+  fi
 }
 
 # gremlin shell requires remote config to be pulled from yml filed saved on disk (stoopid)

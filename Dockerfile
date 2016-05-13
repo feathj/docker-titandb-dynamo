@@ -18,4 +18,4 @@ WORKDIR /usr/src/app/server/dynamodb-titan100-storage-backend-1.0.0-hadoop1
 EXPOSE 8182
 COPY docker-entrypoint.sh .
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["server"
+CMD ["server"]
